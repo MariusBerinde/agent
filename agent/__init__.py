@@ -3,6 +3,7 @@ Agent package - Main functionality for your agent system.
 """
 from .user_logger import UserLogger
 from .lynis_audit import scanLynis
+from .lynis import Lynis
 
 # Puoi definire qui cosa verrà esposto quando qualcuno importa il package
 __version__ = '0.1.0'
