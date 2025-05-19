@@ -434,7 +434,7 @@ upload-options=
 
 
 #EOF
-skip-test=PHP-2211
+skip-test=PHP-2320
 skip-test=PHP-2320
 skip-test=PHP-2368
 skip-test=PHP-2372
