@@ -2,7 +2,7 @@ import os
 import re
 import unittest
 from pathlib import Path
-from typing import Tuple, List, Set
+from typing import Tuple, List
 
 
 class Lynis:
@@ -21,7 +21,11 @@ class Lynis:
         self.profile = profile_path or "../data/deb.prt"
         self._validate_profile()
         self.skipped_list = self.read_skipped_list()
-    
+
+    def to_dict(self,ip:str):
+        return {"profilo":self.profile,"ip":ip}
+
+
     def _validate_profile(self) -> None:
         """
         Verifica che il file di profilo esista e sia accessibile.

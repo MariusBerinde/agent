@@ -1,0 +1,33 @@
+[21-05-2025 17:25:52] [INFO] [Mariolone Bubbarello] Test from main
+[21-05-2025 17:26:14] [INFO] [Mariolone Bubbarello] Test from main
+[21-05-2025 16:43:43] [INFO] [Giggino] required security rules
+[22-05-2025 17:05:59] [INFO] [Giggino] required security rules
+[22-05-2025 17:42:08] [INFO] [Giggino] required security rules
+[22-05-2025 19:17:21] [INFO] [Giggino] required security rules
+[22-05-2025 19:18:42] [INFO] [Giggino] required security rules
+[23-05-2025 12:40:39] [INFO] [{'name': 'marius'}] set user {'name': 'marius'} as active user
+[23-05-2025 12:45:06] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:52:07] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:52:46] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:55:04] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:58:23] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 13:00:20] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 15:46:33] [INFO] [Mariolone Bubbarello] Test from main
+[23-05-2025 15:46:48] [INFO] [Mariolone Bubbarello] Test from main
+[23-05-2025 15:54:48] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 15:57:50] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:00:12] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:01:35] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:01:39] [INFO] [marius] ping from 127.0.0.1
+[23-05-2025 16:06:54] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:08:28] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:09:51] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:12:04] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:15:49] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:22:09] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:22:16] [INFO] [marius] get request status
+[23-05-2025 16:22:52] [INFO] [marius] required security rules
+[23-05-2025 16:53:21] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:53:25] [INFO] [marius] required security rules
+[23-05-2025 16:57:51] [INFO] [marius] required logs
+[23-05-2025 17:00:12] [INFO] [marius] get request status
