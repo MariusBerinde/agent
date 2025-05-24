@@ -1,8 +1,5 @@
-#from agent import lynis ,Lynis, scanLynis,UserLogger,setup_logger,Rule,SystemRules
-from agent import Lynis, UserLogger,setup_logger,Rule,SystemRules
-#from logging.handlers import RotatingFileHandler
+from agent import Lynis, UserLogger,setup_logger,Rule,SystemRules,scanLynis
 from typing import List
-#from urllib.parse import urlparse, parse_qs
 from urllib.parse import urlparse
 import http.server
 import json
@@ -13,7 +10,7 @@ import platform as pt;
 actual_username="Unknown"
 main_logger = setup_logger(log_file_path='application.log')
 rules = []
-logger = UserLogger(main_logger,"Giggino", {})
+logger = UserLogger(main_logger,"Unknown", {})
 
 def read_json():
     with open('./data/config.json', 'r') as file:
@@ -78,7 +75,9 @@ def replace_rules(rules):
     else:
         lynis.delete_all_rules()
         
-
+def read_last_report():
+    #TODO:
+    pass
 class AgentRequest (http.server.BaseHTTPRequestHandler):
     
 
@@ -115,64 +114,125 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             ip = self.get_client_ip()
-            #ip = "192.168.1.1"
-
-            #logger.user = self.actual_username             
             print(f" utente attule {actual_username}")
-            if actual_username !='Unknown':
-                logger.info(f"ping from {ip}")
-                print(f"utente loggato come {logger.user}\t ip sender={ip}")
-
+            logger.info(f"ping from {ip}")
+            print(f"utente loggato come {logger.user}\t ip sender={ip}")
             response = {"status": "success", "message": "Agent is running"}
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
         if path == '/get_status':
             # read local data 
             # extract other info services
-            logger.info("get request status")
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            status = get_local_info()
-            response = {"status": "success", "message": status}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("rischiesta di stato da parte di utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                logger.info("get request status")
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                status = get_local_info()
+                response = {"status": "success", "message": status}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
             return
         
         if path == '/get_rules':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            logger.info("required security rules")
-
-            actual_rules = get_system_rules()
-            json_rules = []
-            for rule in actual_rules.rules :
-                json_rules.append(json.dumps(rule.to_dict('192.168.1.1')))
-
-            response = {"status": "success", "message": json_rules}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("tentativo di ricevimento info da utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                logger.info("required security rules")
+                actual_rules = get_system_rules()
+                json_rules = []
+                ip = self.get_client_ip()
+                for rule in actual_rules.rules :
+                    json_rules.append(json.dumps(rule.to_dict(ip)))
+                response = {"status": "success", "message": json_rules}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
             return
 
         if path == '/get_logs':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            logger.info("required logs")
-            logs = get_logs()
-            response = {"status": "success", "message": logs}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("richiesta di logs da parte di utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                logger.info("required logs")
+                logs = get_logs()
+                response = {"status": "success", "message": logs}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
             return 
 
         if path == '/get_lynis':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            lynis = get_lynis()
-            logger.info("required lynis rules")
-            response = {"status": "success", "message": lynis}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("richiesta di regole lynis da parte di un utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                lynis = get_lynis()
+                logger.info("required lynis rules")
+                response = {"status": "success", "message": lynis}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
             return 
 
+        if path == '/get_lynis_report':
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("richiesta di report lynis  da parte di un utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                self.send_response(200)
+                self.send_header('Content-Type', 'html/txt')
+                self.end_headers()
+                lynis =  read_last_report()
+                logger.info("required last lynis report")
+                response = {"status": "success", "message": lynis}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            return 
+    
+        if path == '/start_lynis_scan':
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("tentativo di lancio di scan lynis da parte di utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else: 
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                lynis = scanLynis(logger.user)
+                logger.info("lancio lynis scan")
+                response = {"status": "success", "message": lynis}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            return 
     
     def do_POST(self):
         """
@@ -193,20 +253,23 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 
                 if path == "/add_rules":
                     # per sostituire file di configurazione  
-                    print(f"ecco il dato ricevuto {data}")
-                    
-                    logger.info(f"added the folloing rules = {data} as the lynis skipped rules")
-                    replace_rules(data)
-                    
-                    # Rispondiamo con successo
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    response = {"status": "success", "message": "Regole aggiornate"}
-                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    if logger.user == 'Unknown':
+                        self.send_response(401)
+                        logger.info("tentativo di inserimento regole da saltare da utente non riconosciuto")
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                        self.wfile.write(json.dumps(response).encode('utf-8'))
+                    else:
+                        print(f"ecco il dato ricevuto {data}")
+                        replace_rules(data)
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        response = {"status": "success", "message": "Regole aggiornate"}
+                        self.wfile.write(json.dumps(response).encode('utf-8'))
                 elif path == "/set_user":
                     print("dato ricevuto =",data["name"])
-
                     logger.user = data["name"]
                     actual_username =  data["name"]
                     print(f"acutal user modificato {actual_username}")
@@ -327,12 +390,11 @@ def test_get_local_info():
 
 
 if __name__ == "__main__":
-
-
     json_data=read_json()
      #print(json.dumps(json_data, indent=4))
     port = json_data["port"]
     host = '0.0.0.0'
+    logger.info("Avvio server")
     print(f"config attula {port},host{host}")
     #test_log()
     #test_read_logs()
