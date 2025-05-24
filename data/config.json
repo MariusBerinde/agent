@@ -1,0 +1,13 @@
+{
+	"port": 5000,
+	"lynis_profile": "./deb.prt ",
+	"rules":[
+		{
+			"name": "6.2.2 Ensure /etc/shadow password fields are not empty",
+			"command": " awk -F: '($2 == \"\" ) { print $1 \" does not have a password \"}' /etc/shadow",
+			"desc": "An account with an empty password field means that anybody may log in as that user without providing a password.",
+			"expected_ris": ""
+		}
+	]
+
+}
