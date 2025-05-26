@@ -1,0 +1,74 @@
+[21-05-2025 17:25:52] [INFO] [Mariolone Bubbarello] Test from main
+[21-05-2025 17:26:14] [INFO] [Mariolone Bubbarello] Test from main
+[21-05-2025 16:43:43] [INFO] [Giggino] required security rules
+[22-05-2025 17:05:59] [INFO] [Giggino] required security rules
+[22-05-2025 17:42:08] [INFO] [Giggino] required security rules
+[22-05-2025 19:17:21] [INFO] [Giggino] required security rules
+[22-05-2025 19:18:42] [INFO] [Giggino] required security rules
+[23-05-2025 12:40:39] [INFO] [{'name': 'marius'}] set user {'name': 'marius'} as active user
+[23-05-2025 12:45:06] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:52:07] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:52:46] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:55:04] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 12:58:23] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 13:00:20] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 15:46:33] [INFO] [Mariolone Bubbarello] Test from main
+[23-05-2025 15:46:48] [INFO] [Mariolone Bubbarello] Test from main
+[23-05-2025 15:54:48] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 15:57:50] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:00:12] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:01:35] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:01:39] [INFO] [marius] ping from 127.0.0.1
+[23-05-2025 16:06:54] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:08:28] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:09:51] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:12:04] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:15:49] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:22:09] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:22:16] [INFO] [marius] get request status
+[23-05-2025 16:22:52] [INFO] [marius] required security rules
+[23-05-2025 16:53:21] [INFO] [marius] set user {'name': 'marius'} as active user
+[23-05-2025 16:53:25] [INFO] [marius] required security rules
+[23-05-2025 16:57:51] [INFO] [marius] required logs
+[23-05-2025 17:00:12] [INFO] [marius] get request status
+[24-05-2025 10:48:26] [INFO] [Giggino] Avvio server
+[24-05-2025 10:49:19] [INFO] [Giggino] Avvio server
+[24-05-2025 10:50:38] [INFO] [Giggino] Avvio server
+[24-05-2025 10:51:01] [INFO] [Giggino] ping from 127.0.0.1
+[24-05-2025 10:52:45] [INFO] [Giggino] required security rules
+[24-05-2025 10:54:56] [INFO] [Giggino] required logs
+[24-05-2025 10:57:38] [INFO] [Giggino] get request status
+[24-05-2025 11:02:00] [INFO] [Giggino] get request status
+[24-05-2025 11:02:16] [INFO] [Giggino] required logs
+[24-05-2025 11:02:28] [INFO] [Giggino] required security rules
+[24-05-2025 11:02:44] [INFO] [Giggino] get request status
+[24-05-2025 11:02:47] [INFO] [Giggino] ping from 127.0.0.1
+[24-05-2025 11:02:51] [INFO] [Giggino] required logs
+[24-05-2025 11:03:47] [INFO] [Giggino] Avvio server
+[24-05-2025 11:05:27] [INFO] [Giggino] Avvio server
+[24-05-2025 11:05:34] [INFO] [Giggino] required logs
+[24-05-2025 11:05:44] [INFO] [Giggino] required security rules
+[24-05-2025 11:06:32] [INFO] [Giggino] ping from 127.0.0.1
+[24-05-2025 11:08:48] [INFO] [Unknown] Avvio server
+[24-05-2025 11:08:56] [INFO] [Unknown] ping from 127.0.0.1
+[24-05-2025 11:09:01] [INFO] [Unknown] tentativo di ricevimento info da utente non riconosciuto
+[24-05-2025 11:09:20] [INFO] [Unknown] tentativo di ricevimento info da utente non riconosciuto
+[24-05-2025 11:09:36] [INFO] [Unknown] tentativo di ricevimento info da utente non riconosciuto
+[24-05-2025 11:49:07] [INFO] [Unknown] Avvio server
+[24-05-2025 11:49:30] [INFO] [Unknown] tentativo di lancio di scan lynis da parte di utente non riconosciuto
+[24-05-2025 11:49:57] [INFO] [marius] set user {'name': 'marius'} as active user
+[24-05-2025 11:50:58] [INFO] [marius] lancio lynis scan
+[26-05-2025 11:41:16] [INFO] [Unknown] Avvio server
+[26-05-2025 11:41:35] [INFO] [Unknown] ping from 127.0.0.1
+[26-05-2025 11:41:52] [INFO] [marius] set user {'name': 'marius'} as active user
+[26-05-2025 11:42:47] [INFO] [marius] get request status
+[26-05-2025 15:04:06] [INFO] [Unknown] Avvio server
+[26-05-2025 15:06:46] [INFO] [Unknown] Avvio server
+[26-05-2025 15:07:03] [INFO] [Unknown] Avvio server
+[26-05-2025 16:47:48] [INFO] [Unknown] Avvio server
+[26-05-2025 16:48:09] [ERROR] [Unknown] server locale fermato correttamente
+[26-05-2025 18:57:59] [INFO] [Unknown] Avvio server
+[26-05-2025 18:59:15] [INFO] [Unknown] ping from 127.0.0.1
+[26-05-2025 18:59:33] [INFO] [marius] set user {'name': 'marius'} as active user
+[26-05-2025 18:59:55] [INFO] [marius] ping from 127.0.0.1
+[26-05-2025 19:00:31] [INFO] [marius] server locale fermato correttamente

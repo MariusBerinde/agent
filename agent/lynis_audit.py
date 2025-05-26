@@ -46,15 +46,20 @@ def scanLynis(auditor: str="Altair"):
         if result.returncode == 0:
             print("✅ Audit completato con successo.")
             print(f"📄 Report salvato in: {output_filename}")
+
+            return  output_filename
         else:
             print("❌ Errore durante l'esecuzione di Lynis.")
             print(f"📄 Output salvato in: {output_filename}")
             raise subprocess.CalledProcessError(result.returncode, cmd)
+            return ""
 
     except FileNotFoundError:
         print(f"FileNotFound error{{FileNotFoundError}}")
+        return "file not found"
     except Exception as e:
         print(f" Errore imprevisto: {e}")
+        return "exeption"
 
 if __name__ == "__main__":
 #    scanLynis("Marius Berinde")

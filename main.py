@@ -6,26 +6,46 @@ import json
 import socketserver
 import subprocess
 import platform as pt;
+import sys 
+from pathlib import Path
 
 actual_username="Unknown"
-main_logger = setup_logger(log_file_path='application.log')
+LOG_FILE = './data/application.log'
+CONFIG_FILE = './data/config.json'
+main_logger = setup_logger(log_file_path=LOG_FILE)
 rules = []
 logger = UserLogger(main_logger,"Unknown", {})
 
 def read_json():
-    with open('./data/config.json', 'r') as file:
-        local_data = json.load(file)
+    try:
+        with open( CONFIG_FILE, 'r') as file:
+            local_data = json.load(file)
+    except FileNotFoundError:
+        logger.error(f"file {CONFIG_FILE} non trovato")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"errore {e} con il file {CONFIG_FILE}")
+        sys.exit(1)
+
     return local_data
 
 def get_local_info():
     command_ip = 'hostname -I'
-    ip = subprocess.run(
-        command_ip,
-        shell=True,  
-        capture_output=True,  
-        text=True  
-    )
-    os = pt.uname().system
+    try:
+        ip = subprocess.run(
+            command_ip,
+            shell=True,  
+            capture_output=True,  
+            text=True  
+        )
+        os = pt.uname().system
+    except subprocess.CalledProcessError as e:
+        logger.error(f"errore nel recuperare l'IP con il comando {command_ip} :{e}")
+        sys.exit(1)
+    except Exception as e:
+
+        logger.error(f"errore generico in get_local_info {e}")
+        sys.exit(1)
     return [ip.stdout,os]
 
 def get_logs() -> List[str]:
@@ -39,19 +59,20 @@ def get_logs() -> List[str]:
     print("Lettura del file di log in corso...")
     
     try:
-        with open('./application.log', 'r', encoding='utf-8') as file:
+        with open(LOG_FILE, 'r', encoding='utf-8') as file:
             # Legge tutte le righe del file
             for line in file:
                 # Rimuove spazi bianchi extra e caratteri newline
                 line = line.strip()
                 if line:  # Ignora righe vuote
                     logs.append(line)
-        
-        print(f"Lette {len(logs)} righe di log")
+        #print(f"Lette {len(logs)} righe di log")
     except FileNotFoundError:
-        print("Il file application.log non è stato trovato.")
+        logger.error(f"file {LOG_FILE} non trovato")
+        sys.exit(1)
     except Exception as e:
-        print(f"Si è verificato un errore durante la lettura del file: {str(e)}")
+        logger.error(f"errore {e} con il file {LOG_FILE}")
+        sys.exit(1)
     
     return logs
 
@@ -75,9 +96,82 @@ def replace_rules(rules):
     else:
         lynis.delete_all_rules()
         
-def read_last_report():
-    #TODO:
-    pass
+
+def get_last_report():
+    '''
+    Versione usando solo pathlib (più moderna)
+    Gestisce il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    try:
+        data_dir = Path("./data")
+        
+        if not data_dir.exists():
+            raise FileNotFoundError("La directory ./data/ non esiste")
+        
+        # Trova tutti i file lynis usando il pattern corretto
+        lynis_files = list(data_dir.glob("lynis_audit_*.txt"))
+        
+        if not lynis_files:
+            raise FileNotFoundError("Nessun file lynis trovato nella directory ./data/")
+        
+        # Trova il file più recente basandosi sulla data di modifica del file
+        last_lynis_report = max(lynis_files, key=lambda f: f.stat().st_mtime)
+        
+        # Legge il contenuto
+        content_file = last_lynis_report.read_text(encoding='utf-8')
+        
+        print(f"Nome ultimo report lynis: {last_lynis_report}")
+        print(f"Contenuto ultimo report: {content_file[:100]}...")
+        
+        return content_file
+        
+    except FileNotFoundError as e:
+        print(f"Errore: {e}")
+        logger.error(f"file non trovato in get_last_report {e}")
+        sys.exit(1)
+    except IOError as e:
+        logger.error(f"Errore nella lettura del file: {e}")
+        sys.exit(1)
+
+def get_last_report_file_info():
+    '''
+    Restituisce informazioni sul file dell'ultimo report lynis
+    Gestisce il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    try:
+        data_dir = Path("./data")
+        
+        if not data_dir.exists():
+            raise FileNotFoundError("La directory ./data/ non esiste")
+        
+        # Trova tutti i file lynis usando il pattern corretto
+        lynis_files = list(data_dir.glob("lynis_audit_*.txt"))
+        
+        if not lynis_files:
+            raise FileNotFoundError("Nessun file lynis trovato nella directory ./data/")
+        
+        # Trova il file più recente basandosi sulla data di modifica del file
+        last_lynis_report = max(lynis_files, key=lambda f: f.stat().st_mtime)
+        
+        # Restituisce info sul file
+        file_info = {
+            "filename": last_lynis_report.name,
+            "filepath": str(last_lynis_report),
+            "size": last_lynis_report.stat().st_size,
+            "modified_time": last_lynis_report.stat().st_mtime,
+            "size_mb": round(last_lynis_report.stat().st_size / 1024 / 1024, 2)
+        }
+        
+        print(f"Info ultimo report lynis: {file_info}")
+        
+        return file_info
+        
+    except FileNotFoundError as e:
+        logger.error(f"Errore in : {e}")
+        raise
+    except IOError as e:
+        logger.error(f"Errore nell'accesso al file: {e}")
+        raise
 class AgentRequest (http.server.BaseHTTPRequestHandler):
     
 
@@ -125,7 +219,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             # extract other info services
             if logger.user == "Unknown":
                 self.send_response(401)
-                logger.info("rischiesta di stato da parte di utente non riconosciuto")
+                logger.error("rischiesta di stato da parte di utente non riconosciuto")
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 response = {"status": "success", "message": "utente non riconosciuto"}
@@ -234,6 +328,81 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             return 
     
+        if path == '/get_report_content':
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.error("richiesta del report lynis da parte di un utente sconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+
+                try:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    
+                    report_content = get_last_report()
+                    
+                    response = {
+                        "status": "success", 
+                        "message": "Report content retrieved successfully",
+                        "content": report_content
+                    }
+                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    return
+                
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    response = {
+                        "status": "error", 
+                        "message": f"Errore nel recupero del contenuto del report: {str(e)}"
+                    }
+                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    logger.error(f"Errore nel recupero delle informazioni del report: {str(e)}")
+                    return
+
+        if path == '/get_report':
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.error("richiesta del report lynis da parte di un utente sconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                try:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    
+                    # Ottiene informazioni sul file dell'ultimo report
+                    report_info = get_last_report_file_info()
+                    
+                    response = {
+                        "status": "success", 
+                        "message": "Report info retrieved successfully",
+                        "report_info": report_info
+                    }
+                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    return
+                    
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    response = {
+                        "status": "error", 
+                        "message": f"Errore nel recupero delle informazioni del report: {str(e)}"
+                    }
+                    logger.error(f"Errore nel recupero delle informazioni del report: {str(e)}")
+                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    return
     def do_POST(self):
         """
         Per le richieste POST
@@ -279,7 +448,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                     response = {"status": "success", "message": f"registrato utente {data}"}
                     logger.info(f"set user {data} as active user")
                     self.wfile.write(json.dumps(response).encode('utf-8'))
-                    self.process_command(data)
+                    #self.process_command(data)
                 else:
                     # Endpoint non riconosciuto
                     self.send_response(404)
@@ -293,6 +462,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
+                logger.error("Invalid JSON data")
                 response = {"status": "error", "message": "Invalid JSON data"}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
         else:
@@ -303,8 +473,10 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             response = {"status": "error", "message": "No data provided"}
             self.wfile.write(json.dumps(response).encode('utf-8'))
 
+            """
+
     def process_command(self, data):
-        """Elabora i comandi ricevuti"""
+        ->Elabora i comandi ricevuti <- da commentare 
         # Verifica che la struttura del comando sia valida
         if 'command' not in data:
             self.send_response(400)
@@ -352,6 +524,9 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
     def restart_service(self, params):
         # Implementazione
         pass
+
+            """
+
 
 def test_read_json():
     json_data=read_json()
@@ -409,6 +584,10 @@ if __name__ == "__main__":
             httpd.serve_forever()
     except KeyboardInterrupt:
         print("Server fermato")
+        logger.info("server locale fermato correttamente")
+        sys.exit(0)
     except Exception as e:
         print(f"Errore nell'avvio del server: {e}")
+        logger.error(f"server locale fermato con errore {e}")
+        sys.exit(1)
         

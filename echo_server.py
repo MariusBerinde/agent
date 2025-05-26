@@ -2,6 +2,10 @@ import http.server
 import socketserver
 import json
 from urllib.parse import urlparse, parse_qs
+import subprocess
+import os
+import glob
+from pathlib import Path
 
 def read_json():
     with open('./data/config.json', 'r') as file:
@@ -10,6 +14,94 @@ def read_json():
     print(local_data)
     return local_data
 
+def get_last_report():
+    '''
+    return the last lynis report 
+    Aggiornata per gestire il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    cmd = "ls -t ./data/lynis_audit_*.txt | head -n 1"
+    last_lynis_report = subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout.replace("\n","")
+    content_file = ""
+    with open(last_lynis_report) as file:
+        content_file = file.read()
+    print(f"nome ultimo report lynis: {last_lynis_report}")
+    print(f"contenuto ultimo report {content_file}")
+    return content_file
+
+def get_last_report_alternative():
+    '''
+    Versione alternativa usando solo pathlib (più moderna)
+    Gestisce il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    try:
+        data_dir = Path("./data")
+        
+        if not data_dir.exists():
+            raise FileNotFoundError("La directory ./data/ non esiste")
+        
+        # Trova tutti i file lynis usando il pattern corretto
+        lynis_files = list(data_dir.glob("lynis_audit_*.txt"))
+        
+        if not lynis_files:
+            raise FileNotFoundError("Nessun file lynis trovato nella directory ./data/")
+        
+        # Trova il file più recente basandosi sulla data di modifica del file
+        last_lynis_report = max(lynis_files, key=lambda f: f.stat().st_mtime)
+        
+        # Legge il contenuto
+        content_file = last_lynis_report.read_text(encoding='utf-8')
+        
+        print(f"Nome ultimo report lynis: {last_lynis_report}")
+        print(f"Contenuto ultimo report: {content_file[:100]}...")
+        
+        return content_file
+        
+    except FileNotFoundError as e:
+        print(f"Errore: {e}")
+        raise
+    except IOError as e:
+        print(f"Errore nella lettura del file: {e}")
+        raise
+
+def get_last_report_file_info():
+    '''
+    Restituisce informazioni sul file dell'ultimo report lynis
+    Gestisce il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    try:
+        data_dir = Path("./data")
+        
+        if not data_dir.exists():
+            raise FileNotFoundError("La directory ./data/ non esiste")
+        
+        # Trova tutti i file lynis usando il pattern corretto
+        lynis_files = list(data_dir.glob("lynis_audit_*.txt"))
+        
+        if not lynis_files:
+            raise FileNotFoundError("Nessun file lynis trovato nella directory ./data/")
+        
+        # Trova il file più recente basandosi sulla data di modifica del file
+        last_lynis_report = max(lynis_files, key=lambda f: f.stat().st_mtime)
+        
+        # Restituisce info sul file
+        file_info = {
+            "filename": last_lynis_report.name,
+            "filepath": str(last_lynis_report),
+            "size": last_lynis_report.stat().st_size,
+            "modified_time": last_lynis_report.stat().st_mtime,
+            "size_mb": round(last_lynis_report.stat().st_size / 1024 / 1024, 2)
+        }
+        
+        print(f"Info ultimo report lynis: {file_info}")
+        
+        return file_info
+        
+    except FileNotFoundError as e:
+        print(f"Errore: {e}")
+        raise
+    except IOError as e:
+        print(f"Errore nell'accesso al file: {e}")
+        raise
 
 class AgentRequest (http.server.BaseHTTPRequestHandler):
     """
@@ -30,6 +122,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             response = {"status": "success", "message": "Agent is running"}
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
+            
         if path == '/lol': 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -38,6 +131,77 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
 
+        # NUOVA ROUTE: get_report_content - restituisce il contenuto dell'ultimo report
+        if path == '/get_report_content':
+            try:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                
+                # Ottiene il contenuto dell'ultimo report
+                report_content = get_last_report_alternative()
+                
+                response = {
+                    "status": "success", 
+                    "message": "Report content retrieved successfully",
+                    "content": report_content
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+                
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {
+                    "status": "error", 
+                    "message": f"Errore nel recupero del contenuto del report: {str(e)}"
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+
+        # NUOVA ROUTE: get_report - restituisce informazioni sull'ultimo report
+        if path == '/get_report':
+            try:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                
+                # Ottiene informazioni sul file dell'ultimo report
+                report_info = get_last_report_file_info()
+                
+                response = {
+                    "status": "success", 
+                    "message": "Report info retrieved successfully",
+                    "report_info": report_info
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+                
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {
+                    "status": "error", 
+                    "message": f"Errore nel recupero delle informazioni del report: {str(e)}"
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+
+        if path == '/report': 
+            self.send_response(200)
+            self.send_header('Content-Type', 'text')
+            self.end_headers()
+            report = get_last_report()
+            report_alt = get_last_report_alternative()
+
+            response = {"status": "success", "message": get_last_report}
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+            return
+            
         if path == '/obj': 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -48,8 +212,6 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
 
-
-    
     def do_POST(self):
         """
         Per le richieste POST
@@ -110,58 +272,6 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             response = {"status": "error", "message": "No data provided"}
             self.wfile.write(json.dumps(response).encode('utf-8'))
 
-    def process_command(self, data):
-        """Elabora i comandi ricevuti"""
-        # Verifica che la struttura del comando sia valida
-        if 'command' not in data:
-            self.send_response(400)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            response = {"status": "error", "message": "Missing command field"}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
-            return
-            
-        command = data['command']
-        params = data.get('params', {})
-        
-        # Comandi disponibili
-        commands = {
-            'get_service_status': self.get_service_status,
-            'start_service': self.start_service,
-            'stop_service': self.stop_service,
-            'restart_service': self.restart_service,
-            # Altri comandi che hai già implementato
-        }
-        
-        # Esegue il comando se disponibile
-        if command in commands:
-            commands[command](params)
-        else:
-            self.send_response(400)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            response = {"status": "error", "message": f"Unknown command: {command}"}
-            self.wfile.write(json.dumps(response).encode('utf-8'))
-    
-    # Implementa i vari metodi per i comandi
-    def get_service_status(self, params):
-        # Implementazione
-        pass
-        
-    def start_service(self, params):
-        # Implementazione
-        pass
-        
-    def stop_service(self, params):
-        # Implementazione
-        pass
-        
-    def restart_service(self, params):
-        # Implementazione
-        pass
-
-
-
 def main():
     print("dentro main") 
     port =  5000
@@ -176,7 +286,6 @@ def main():
     except Exception as e:
         print(f"Errore nell'avvio del server: {e}")
 
-
-
 if __name__ == "__main__":
     main()
+    #get_last_report()
