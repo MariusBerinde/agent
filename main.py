@@ -3,7 +3,6 @@ from typing import List
 from urllib.parse import urlparse
 import http.server
 import json
-import socketserver
 import subprocess
 import platform as pt;
 import sys 
@@ -172,6 +171,42 @@ def get_last_report_file_info():
     except IOError as e:
         logger.error(f"Errore nell'accesso al file: {e}")
         raise
+def is_service_active(service_name):
+    """
+    Verifica se un servizio systemd è attivo.
+    
+    Args:
+        service_name (str): Nome del servizio da verificare
+        
+    Returns:
+        bool: True se il servizio è attivo, False altrimenti
+    """
+    try:
+        # Usa systemctl per verificare lo stato del servizio
+        # L'opzione --quiet sopprime l'output
+        # is-active restituisce 0 se il servizio è attivo, non-zero altrimenti
+        result = subprocess.run(
+            ['systemctl', 'is-active', '--quiet', service_name],
+            capture_output=True,
+            timeout=10
+        )
+        
+        # Se il codice di ritorno è 0, il servizio è attivo
+        return result.returncode == 0
+        
+    except subprocess.TimeoutExpired:
+        # Timeout - considera il servizio non attivo
+        return False
+    except FileNotFoundError as f:
+        # systemctl non trovato - prova con il metodo alternativo
+        logger.error("is_service_active : systemctl non trovato")
+        return False
+        return _check_service_alternative(service_name)
+    except Exception as e:
+        # Qualsiasi altro errore
+        logger.error(f" lanciata eccezzione durante l'esecuzione della funzione is_service_active:{e}")
+        return False
+
 class AgentRequest (http.server.BaseHTTPRequestHandler):
     
 
@@ -566,11 +601,16 @@ def test_get_local_info():
 
 if __name__ == "__main__":
     json_data=read_json()
-     #print(json.dumps(json_data, indent=4))
+    print(json.dumps(json_data, indent=4))
     port = json_data["port"]
     host = '0.0.0.0'
     logger.info("Avvio server")
-    print(f"config attula {port},host{host}")
+    servizi = json_data["services"]
+    print(f"config attuale {port},host{host}")
+    print(f"lettura servizi da controllare: {servizi}")
+    for e in servizi:
+        print(e)
+
     #test_log()
     #test_read_logs()
     #test_load_rules()
@@ -578,6 +618,7 @@ if __name__ == "__main__":
 
 
 
+'''
     try:
         with socketserver.TCPServer((host, port), AgentRequest ) as httpd:
             print(f"Server avviato su {host}:{port}")
@@ -591,3 +632,4 @@ if __name__ == "__main__":
         logger.error(f"server locale fermato con errore {e}")
         sys.exit(1)
         
+'''
