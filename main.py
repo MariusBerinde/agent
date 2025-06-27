@@ -6,6 +6,7 @@ import json
 import subprocess
 import platform as pt;
 import sys 
+import socketserver
 from pathlib import Path
 
 actual_username="Unknown"
@@ -89,11 +90,17 @@ def get_system_rules()->SystemRules:
     return system_rules
 
 def replace_rules(rules):
+
+    print(f" REPLACE_RULES parameters {rules}")
     lynis = Lynis()
+    print(f" REPLACE_RULES:list of skipped rules before the use of param: {lynis.get_skipped_rules()}")
     if len(rules) > 0:
         lynis.add_rules(rules)
+        print(f" REPLACE_RULES list of skipped rules after the add after the use of param: {lynis.get_skipped_rules()}")
     else:
         lynis.delete_all_rules()
+        print(f" REPLACE_RULES list of skipped rules after the reset  {lynis.get_skipped_rules()}")
+
         
 
 def get_last_report():
@@ -208,7 +215,7 @@ def is_service_active(service_name):
         return False
 
 class AgentRequest (http.server.BaseHTTPRequestHandler):
-    
+    #    protocol_version = "HTTP/1.1"
 
     def get_client_ip(self):
         """
@@ -250,8 +257,6 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode('utf-8'))
             return
         if path == '/get_status':
-            # read local data 
-            # extract other info services
             if logger.user == "Unknown":
                 self.send_response(401)
                 logger.error("rischiesta di stato da parte di utente non riconosciuto")
@@ -465,8 +470,9 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                         response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
                         self.wfile.write(json.dumps(response).encode('utf-8'))
                     else:
-                        print(f"ecco il dato ricevuto {data}")
-                        replace_rules(data)
+                        rules =  data["rules"]
+                        print(f"ecco il dato ricevuto {rules}")
+                        replace_rules(rules)
                         self.send_response(200)
                         self.send_header('Content-Type', 'application/json')
                         self.end_headers()
@@ -477,12 +483,23 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                     logger.user = data["name"]
                     actual_username =  data["name"]
                     print(f"acutal user modificato {actual_username}")
+
+                    '''
+
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    response = {"status": "success", "message": f"registrato utente {data}"}
-                    logger.info(f"set user {data} as active user")
-                    self.wfile.write(json.dumps(response).encode('utf-8'))
+                    '''
+                    #response = {"status": "success", "message": "registrato utente {data}"}
+                    response = {"status": "success", "message": "registrato utente "}
+                    response_bytes = json.dumps(response).encode('utf-8')
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(response_bytes)))
+                    self.send_header('Connection', 'close')  # <--- IMPORTANTE
+                    self.end_headers()
+                    self.wfile.write(response_bytes)
                     #self.process_command(data)
                 else:
                     # Endpoint non riconosciuto
@@ -598,6 +615,15 @@ def test_get_local_info():
     [ip,os] = get_local_info()
     print(f"ip attuale {ip}\nsistema operativo{os}")
 
+def test_set_new_lynis_rules(path_config_lynis):
+    print("test add rules with empty array")
+    replace_rules(path_config_lynis,[])
+    print("------")
+    print("test replace rules with obljet like from the client")
+    replace_rules(path_config_lynis,["ACCT-2754","ACCT-2760"])
+
+
+
 
 if __name__ == "__main__":
     json_data=read_json()
@@ -607,18 +633,20 @@ if __name__ == "__main__":
     logger.info("Avvio server")
     servizi = json_data["services"]
     print(f"config attuale {port},host{host}")
+
+
+    ''' 
     print(f"lettura servizi da controllare: {servizi}")
     for e in servizi:
         print(e)
-
+    '''
+   # test_set_new_lynis_rules(json_data["lynis_profile"]);
     #test_log()
     #test_read_logs()
     #test_load_rules()
     #test_get_local_info()
 
 
-
-'''
     try:
         with socketserver.TCPServer((host, port), AgentRequest ) as httpd:
             print(f"Server avviato su {host}:{port}")
@@ -632,4 +660,4 @@ if __name__ == "__main__":
         logger.error(f"server locale fermato con errore {e}")
         sys.exit(1)
         
-'''
+
