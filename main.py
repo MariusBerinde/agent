@@ -139,6 +139,38 @@ def get_last_report():
         logger.error(f"Errore nella lettura del file: {e}")
         sys.exit(1)
 
+def get_last_report_file():
+    '''
+    Restituisce il path completo dell'ultimo report lynis creato
+    Gestisce il formato lynis_audit_DD-MM-YYYY_HH-MM-SS.txt
+    '''
+    try:
+        data_dir = Path("./data")
+        
+        if not data_dir.exists():
+            raise FileNotFoundError("La directory ./data/ non esiste")
+        
+        # Trova tutti i file lynis usando il pattern corretto
+        lynis_files = list(data_dir.glob("lynis_audit_*.txt"))
+        
+        if not lynis_files:
+            raise FileNotFoundError("Nessun file lynis trovato nella directory ./data/")
+        
+        # Trova il file più recente basandosi sulla data di modifica del file
+        last_lynis_report = max(lynis_files, key=lambda f: f.stat().st_mtime)
+        
+        print(f"Path ultimo report lynis: {last_lynis_report}")
+        
+        return last_lynis_report
+        
+    except FileNotFoundError as e:
+        print(f"Errore: {e}")
+        logger.error(f"file non trovato in get_last_report_file {e}")
+        return None
+    except IOError as e:
+        logger.error(f"Errore nella lettura del file: {e}")
+        return None
+
 def get_last_report_file_info():
     '''
     Restituisce informazioni sul file dell'ultimo report lynis
@@ -341,14 +373,62 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             else:
-                self.send_response(200)
-                self.send_header('Content-Type', 'html/txt')
-                self.end_headers()
-                lynis =  read_last_report()
-                logger.info("required last lynis report")
-                response = {"status": "success", "message": lynis}
-                self.wfile.write(json.dumps(response).encode('utf-8'))
-            return 
+                last_report_file = get_last_report_file()
+                
+                if last_report_file and last_report_file.exists():
+                    try:
+                        # Legge il contenuto del file come testo
+                        file_content = last_report_file.read_text(encoding='utf-8')
+                        
+                        # Invia il contenuto come text/plain
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                        self.send_header('Content-Length', str(len(file_content.encode('utf-8'))))
+                        # Header opzionale per indicare il nome del file originale
+                        self.send_header('X-Filename', last_report_file.name)
+                        self.end_headers()
+                        
+                        # Invia il contenuto del file direttamente
+                        self.wfile.write(file_content.encode('utf-8'))
+                        logger.info(f"Inviato contenuto lynis report: {last_report_file.name}")
+                        
+                    except UnicodeDecodeError as e:
+                        # Se il file non è UTF-8, prova con altre codifiche
+                        try:
+                            file_content = last_report_file.read_text(encoding='latin-1')
+                            
+                            self.send_response(200)
+                            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                            self.send_header('Content-Length', str(len(file_content.encode('utf-8'))))
+                            self.send_header('X-Filename', last_report_file.name)
+                            self.end_headers()
+                            
+                            self.wfile.write(file_content.encode('utf-8'))
+                            logger.info(f"Inviato lynis report con encoding latin-1: {last_report_file.name}")
+                            
+                        except Exception as e:
+                            self.send_response(500)
+                            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                            self.end_headers()
+                            error_message = f"Errore di encoding del file: {str(e)}"
+                            self.wfile.write(error_message.encode('utf-8'))
+                            logger.error(f"Errore encoding file lynis: {e}")
+                            
+                    except IOError as e:
+                        self.send_response(500)
+                        self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                        self.end_headers()
+                        error_message = f"Errore nella lettura del file: {str(e)}"
+                        self.wfile.write(error_message.encode('utf-8'))
+                        logger.error(f"Errore lettura file lynis: {e}")
+                else:
+                    self.send_response(404)
+                    self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                    self.end_headers()
+                    error_message = "Errore: Nessun report lynis trovato"
+                    self.wfile.write(error_message.encode('utf-8'))
+                    logger.error("Nessun file lynis trovato")
+            return
     
         if path == '/start_lynis_scan':
             if logger.user == "Unknown":
