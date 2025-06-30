@@ -8,6 +8,8 @@ import platform as pt;
 import sys 
 import socketserver
 from pathlib import Path
+import threading
+import json
 
 actual_username="Unknown"
 LOG_FILE = './data/application.log'
@@ -15,6 +17,8 @@ CONFIG_FILE = './data/config.json'
 main_logger = setup_logger(log_file_path=LOG_FILE)
 rules = []
 logger = UserLogger(main_logger,"Unknown", {})
+lynis_scan_lock = threading.Lock()
+lynis_scan_running = False
 
 def read_json():
     try:
@@ -246,6 +250,26 @@ def is_service_active(service_name):
         logger.error(f" lanciata eccezzione durante l'esecuzione della funzione is_service_active:{e}")
         return False
 
+
+def run_lynis_scan(user, logger):
+    """
+    Funzione di supporto per eseguire la scansione Lynis in background
+    """
+    global lynis_scan_running
+    
+    try:
+        logger.info(f"Avvio scansione Lynis per utente: {user}")
+        result = scanLynis(user)
+        logger.info(f"Scansione Lynis completata per utente: {user}")
+        return result
+    except Exception as e:
+        logger.error(f"Errore durante la scansione Lynis: {str(e)}")
+        return None
+    finally:
+        # Rilascia il lock quando la scansione è completata
+        with lynis_scan_lock:
+            lynis_scan_running = False
+
 class AgentRequest (http.server.BaseHTTPRequestHandler):
     #    protocol_version = "HTTP/1.1"
 
@@ -431,6 +455,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             return
     
         if path == '/start_lynis_scan':
+            global lynis_scan_running
             if logger.user == "Unknown":
                 self.send_response(401)
                 logger.info("tentativo di lancio di scan lynis da parte di utente non riconosciuto")
@@ -439,13 +464,32 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             else: 
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                lynis = scanLynis(logger.user)
-                logger.info("lancio lynis scan")
-                response = {"status": "success", "message": lynis}
-                self.wfile.write(json.dumps(response).encode('utf-8'))
+             with lynis_scan_lock:
+                        if lynis_scan_running:
+                            self.send_response(409)  # Conflict
+                            self.send_header('Content-Type', 'application/json')
+                            self.end_headers()
+                            response = {"status": "error", "message": "Una scansione Lynis è già in corso. Attendere il completamento."}
+                            self.wfile.write(json.dumps(response).encode('utf-8'))
+                            logger.info(f"Tentativo di avvio scansione Lynis bloccato - scansione già in corso per utente: {logger.user}")
+                        else:
+                            # Imposta il flag di scansione in corso
+                            lynis_scan_running = True
+                            
+                            # Avvia la scansione in un thread separato
+                            scan_thread = threading.Thread(
+                                target=run_lynis_scan, 
+                                args=(logger.user, logger),
+                                daemon=True
+                            )
+                            scan_thread.start()
+                            
+                            self.send_response(201)  # Accepted
+                            self.send_header('Content-Type', 'application/json')
+                            self.end_headers()
+                            response = {"status": "success", "message": "Scansione Lynis avviata in background"}
+                            self.wfile.write(json.dumps(response).encode('utf-8'))
+                            logger.info(f"Scansione Lynis avviata in thread per utente: {logger.user}")
             return 
     
         if path == '/get_report_content':
