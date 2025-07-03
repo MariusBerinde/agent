@@ -10,6 +10,7 @@ import socketserver
 from pathlib import Path
 import threading
 import json
+import requests
 
 actual_username="Unknown"
 LOG_FILE = './data/application.log'
@@ -747,13 +748,31 @@ def test_set_new_lynis_rules(path_config_lynis):
     replace_rules(path_config_lynis,["ACCT-2754","ACCT-2760"])
 
 
+def test_make_request(ip,port,name,descr):
+    url = "http://localhost:8083/addAgent"
+
+    # Data to be sent
+    data = {
+        "ip": ip,
+        "port": port,
+        "name": name,
+        "descr": descr 
+    }
+
+    # A POST request
+    response = requests.post(url, json=data)
+
+    # Print the response
+    print(response.json())
 
 
 if __name__ == "__main__":
     json_data=read_json()
     print(json.dumps(json_data, indent=4))
     port = json_data["port"]
-    host = '0.0.0.0'
+    host = json_data["ip"]
+    name = json_data["name"]
+    descr = json_data["descr"]
     logger.info("Avvio server")
     servizi = json_data["services"]
     print(f"config attuale {port},host{host}")
@@ -770,6 +789,9 @@ if __name__ == "__main__":
     #test_load_rules()
     #test_get_local_info()
 
+    test_make_request(host,port,name,descr)
+
+
 
     try:
         with socketserver.TCPServer((host, port), AgentRequest ) as httpd:
@@ -783,5 +805,3 @@ if __name__ == "__main__":
         print(f"Errore nell'avvio del server: {e}")
         logger.error(f"server locale fermato con errore {e}")
         sys.exit(1)
-        
-

@@ -1,5 +1,8 @@
 {
 	"port": 5000,
+	"ip": "127.0.0.1",
+	"name": "wsl",
+	"descr":"lol",
 	"lynis_profile": "./data/deb.prt ",
 	"services":["mongodb","haproxy","glusterfs "],
 	"rules":[
