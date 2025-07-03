@@ -1,6 +1,7 @@
 {
 	"port": 5000,
-	"lynis_profile": "./deb.prt ",
+	"lynis_profile": "./data/deb.prt ",
+	"services":["mongodb","haproxy","glusterfs "],
 	"rules":[
 		{
 			"name": "6.2.2 Ensure /etc/shadow password fields are not empty",
