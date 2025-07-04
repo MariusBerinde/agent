@@ -18,7 +18,7 @@ class Lynis:
             profile_path: Percorso al file di profilo Lynis da utilizzare.
                           Se None, verrà usato il percorso predefinito.
         """
-        self.profile = profile_path or "../data/deb.prt"
+        self.profile = profile_path or "./data/deb.prt"
         self._validate_profile()
         self.skipped_list = self.read_skipped_list()
 
