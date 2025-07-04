@@ -434,15 +434,6 @@ upload-options=
 
 
 #EOF
-skip-test=PHP-2320
-skip-test=PHP-2320
-skip-test=PHP-2368
-skip-test=PHP-2372
-skip-test=PHP-2374
-skip-test=PHP-2376
-skip-test=PHP-2378
-skip-test=PHP-2379
-skip-test=PHP-2382
 
 ## regole per saltare regole di telnet
 #skip-test=PINSE-8016
@@ -455,8 +446,6 @@ skip-test=PHP-2382
 # controlli automatici
 #skip-test=TOOL-5002
 # skip antivirus
-skip-test=MALW-3280
 # skip malware scanner 
-skip-test=HRDN-7230
-skip-test=FILE-6310
-skip-test=AUTH-9286
+skip-test=ACCT-2754
+skip-test=ACCT-2760

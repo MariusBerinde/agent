@@ -21,6 +21,7 @@ logger = UserLogger(main_logger,"Unknown", {})
 lynis_scan_lock = threading.Lock()
 lynis_scan_running = False
 
+
 def read_json():
     try:
         with open( CONFIG_FILE, 'r') as file:
@@ -568,6 +569,33 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                     logger.error(f"Errore nel recupero delle informazioni del report: {str(e)}")
                     self.wfile.write(json.dumps(response).encode('utf-8'))
                     return
+        if path == '/get_service_status':
+            if logger.user == "Unknown":
+                self.send_response(401)
+                logger.info("tentativo di lancio di scan lynis da parte di utente non riconosciuto")
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+            else:
+                json_data=read_json()
+                local_servies = json_data["services"] 
+                status_services = check_active_service(local_servies)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+
+                response = {
+                    "status": "success", 
+                    "message": "Report info retrieved successfully",
+                    "report_info": status_services 
+                }
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+                return
+
+
     def do_POST(self):
         """
         Per le richieste POST
@@ -607,7 +635,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                     print("dato ricevuto =",data["name"])
                     logger.user = data["name"]
                     actual_username =  data["name"]
-                    print(f"acutal user modificato {actual_username}")
+                    print(f"actual user modificato {actual_username}")
 
                     '''
 
@@ -748,8 +776,7 @@ def test_set_new_lynis_rules(path_config_lynis):
     replace_rules(path_config_lynis,["ACCT-2754","ACCT-2760"])
 
 
-def test_make_request(ip,port,name,descr):
-    url = "http://localhost:8083/addAgent"
+def test_make_request(ip,port,name,descr,url):
 
     # Data to be sent
     data = {
@@ -765,6 +792,22 @@ def test_make_request(ip,port,name,descr):
     # Print the response
     print(response.json())
 
+def check_active_service(services):
+    """
+    returns the status of each services from the list services
+    """
+    status = []
+    #todo parall if len > 10
+    for s in services:
+        status.append({"nome servizio": s, "status": is_service_active(s)})
+    return status
+def test_check_serv():
+    services=["cron", "dmesg", "ssh"]
+    ris = check_active_service(services)
+    print("test_check_serv ")
+    for  r in ris:
+        print(r)
+
 
 if __name__ == "__main__":
     json_data=read_json()
@@ -773,6 +816,7 @@ if __name__ == "__main__":
     host = json_data["ip"]
     name = json_data["name"]
     descr = json_data["descr"]
+    url = json_data["url"]
     logger.info("Avvio server")
     servizi = json_data["services"]
     print(f"config attuale {port},host{host}")
@@ -789,7 +833,8 @@ if __name__ == "__main__":
     #test_load_rules()
     #test_get_local_info()
 
-    test_make_request(host,port,name,descr)
+   # test_make_request(host,port,name,descr,url)
+
 
 
 
@@ -805,3 +850,4 @@ if __name__ == "__main__":
         print(f"Errore nell'avvio del server: {e}")
         logger.error(f"server locale fermato con errore {e}")
         sys.exit(1)
+
