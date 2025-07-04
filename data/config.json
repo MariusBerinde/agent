@@ -6,12 +6,66 @@
 	"url":"http://localhost:8083/addAgent",
 	"lynis_profile": "./data/deb.prt ",
 	"services":["mongodb","haproxy","glusterfs "],
-	"rules":[
+	"rules": [
 		{
-			"name": "6.2.2 Ensure /etc/shadow password fields are not empty",
-			"command": " awk -F: '($2 == \"\" ) { print $1 \" does not have a password \"}' /etc/shadow",
-			"desc": "An account with an empty password field means that anybody may log in as that user without providing a password.",
-			"expected_ris": ""
+			"name": "SYS-OSL-4: Telnet must not be installed on the system",
+			"command": "ls -l /usr/bin/telnet >/dev/null 2>&1 && printf FAIL || printf OK >&2",
+			"desc": "Telnet available on the system is considered as a potential security issue.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "SYS-FIL-1: Ensure that firewalld is installed and enabled",
+			"command": "systemctl is-enabled firewalld",
+			"desc": "Firewalld has to be used to protect the system network connections.",
+			"expected_ris": "enabled"
+		},
+		{
+			"name": "SOL-AID-1: Ensure that AIDE is installed",
+			"command": "/usr/bin/aide --version >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "AIDE is used to check system consistency",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "SOL-LYN-1: Ensure that Lynis is installed",
+			"command": "/usr/sbin/lynis --version >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "Lynis is used to do a system security configuration check.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "SUP-LOG-1: Ensure that rsyslog is installed and enabled",
+			"command": "systemctl is-enabled rsyslogd",
+			"desc": "Rsyslog is used to collect all the system logs and to send them to a remote log server.",
+			"expected_ris": "enabled"
+		},
+		{
+			"name": "SUP-EML-1: No SMTP server should be active on any server",
+			"command": "ss -lnt |grep 25 >/dev/null 2>&1 && printf FAIL || printf OK >&2",
+			"desc": "SMTP in not necessary and lowers overall system security.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "CPT-ADM-5: sudo must be installed to track any administrative activity on the system",
+			"command": "/usr/bin/sudo -V >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "sudo must be used to track every administrative activity on the system.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "CPT-ADM-3: root login must be disabled for remote connections",
+			"command": "grep -e \"^PermitRootLogin no\" /etc/ssh/sshd_config >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "Remote root login is a security issue.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "SYS-FSS-8: Default user UMASK 0077",
+			"command": "grep -E '^[[:space:]]*UMASK[[:space:]]*0077[[:space:]]*$' /etc/login.defs >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "Files created by a user has the 0700 permissions as default.",
+			"expected_ris": "OK"
+		},
+		{
+			"name": "ADM-ACC-8: public SSH keys must be set with 0640 permissions",
+			"command": "ls -l /etc/ssh/*.pub | grep -e \"^-rw-r-----\" >/dev/null 2>&1 && printf OK || printf FAIL >&2",
+			"desc": "0640 permissions over public keys ensures better security of the system.",
+			"expected_ris": "OK"
 		}
 	]
 

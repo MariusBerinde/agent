@@ -858,7 +858,7 @@ if __name__ == "__main__":
     #test_get_local_info()
 
     #test_http_request()
-    connect_to_server(host,port,name,descr,url)
+#    connect_to_server(host,port,name,descr,url)
 
 
 
