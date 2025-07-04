@@ -1,0 +1,636 @@
+
+[ Lynis 3.0.7 ]
+
+################################################################################
+  Lynis comes with ABSOLUTELY NO WARRANTY. This is free software, and you are
+  welcome to redistribute it under the terms of the GNU General Public License.
+  See the LICENSE file for details about using this software.
+
+  2007-2021, CISOfy - https://cisofy.com/lynis/
+  Enterprise support available (compliance, plugins, interface and tools)
+################################################################################
+
+
+[+] Initializing program
+------------------------------------
+
+  ###################################################################
+  #                                                                 #
+  #   NON-PRIVILEGED SCAN MODE                                      #
+  #                                                                 #
+  ###################################################################
+
+  NOTES:
+  --------------
+  * Some tests will be skipped (as they require root permissions)
+  * Some tests might fail silently or give different results
+
+- Detecting OS...  [ DONE ]
+- Checking profiles... [ DONE ]
+
+  ---------------------------------------------------
+  Program version:           3.0.7
+  Operating system:          Linux
+  Operating system name:     Ubuntu
+  Operating system version:  22.04
+  Kernel version:            5.15.153.1
+  Hardware platform:         x86_64
+  Hostname:                  MSI
+  ---------------------------------------------------
+  Profiles:                  /etc/lynis/default.prf ../data/deb.prt
+  Log file:                  /home/marius/lynis.log
+  Report file:               /home/marius/lynis-report.dat
+  Report version:            1.0
+  Plugin directory:          /etc/lynis/plugins
+  ---------------------------------------------------
+  Auditor:                   Marius Berinde
+  Language:                  en
+  Test category:             all
+  Test group:                all
+  ---------------------------------------------------
+- Program update status...  [ NO UPDATE ]
+
+[+] System tools
+------------------------------------
+- Scanning available tools...
+- Checking system binaries...
+
+[+] Boot and services
+------------------------------------
+
+  [WARNING]: Test CORE-1000 had a long execution: 26.361809 seconds
+
+- Service Manager [ SysV Init ]
+- Boot loader [ NONE FOUND ]
+System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+- Check running services (systemctl) [ DONE ]
+Result: found 0 running services
+- Check enabled services at boot (systemctl) [ DONE ]
+Result: found 31 enabled services
+- Check startup files (permissions) [ OK ]
+- Running 'systemd-analyze security'
+System has not been booted with systemd as init system (PID 1). Can't operate.
+Failed to connect to bus: Host is down
+
+[+] Kernel
+------------------------------------
+- Checking default run level [ UNKNOWN ]
+- Checking CPU support (NX/PAE)
+CPU support: PAE and/or NoeXecute supported [ FOUND ]
+- Checking kernel version and release [ DONE ]
+- Checking kernel type [ DONE ]
+- Checking loaded kernel modules [ DONE ]
+- Checking Linux kernel configuration file [ FOUND ]
+- Checking default I/O kernel scheduler [ NOT FOUND ]
+grep: /etc/kernel-img.conf: No such file or directory
+- Checking for available kernel update [ UNKNOWN ]
+- Checking core dumps configuration
+- configuration in etc/profile [ DEFAULT ]
+- 'hard' configuration in security/limits.conf [ DEFAULT ]
+- 'soft' configuration in security/limits.conf [ DEFAULT ]
+- Checking setuid core dumps configuration [ DISABLED ]
+- Check if reboot is needed [ UNKNOWN ]
+
+[+] Memory and Processes
+------------------------------------
+- Checking /proc/meminfo [ FOUND ]
+- Searching for dead/zombie processes [ NOT FOUND ]
+- Searching for IO waiting processes [ NOT FOUND ]
+- Search prelink tooling [ NOT FOUND ]
+
+[+] Users, Groups and Authentication
+------------------------------------
+- Administrator accounts [ OK ]
+- Unique UIDs [ OK ]
+- Unique group IDs [ OK ]
+- Unique group names [ OK ]
+- Password file consistency [ SUGGESTION ]
+- Checking password hashing rounds [ DISABLED ]
+- Query system users (non daemons) [ DONE ]
+- NIS+ authentication support [ NOT ENABLED ]
+- NIS authentication support [ NOT ENABLED ]
+- Sudoers file(s) [ FOUND ]
+- PAM password strength tools [ SUGGESTION ]
+- PAM configuration files (pam.conf) [ FOUND ]
+- PAM configuration files (pam.d) [ FOUND ]
+- PAM modules [ FOUND ]
+- LDAP module in PAM [ NOT FOUND ]
+- Accounts without expire date [ OK ]
+- Accounts without password [ OK ]
+- Locked accounts [ OK ]
+- Checking Linux single user mode authentication [ OK ]
+- Determining default umask
+- umask (/etc/profile) [ NOT FOUND ]
+- umask (/etc/login.defs) [ SUGGESTION ]
+- LDAP authentication support [ NOT ENABLED ]
+- Logging failed login attempts [ ENABLED ]
+
+[+] Shells
+------------------------------------
+- Checking shells from /etc/shells
+Result: found 10 shells (valid shells: 10).
+- Session timeout settings/tools [ NONE ]
+- Checking default umask values
+- Checking default umask in /etc/bash.bashrc [ NONE ]
+- Checking default umask in /etc/profile [ NONE ]
+
+[+] File systems
+------------------------------------
+- Query swap partitions (fstab) [ NONE ]
+- Testing swap partitions [ OK ]
+- Testing /proc mount (hidepid) [ SUGGESTION ]
+- Checking for old files in /tmp [ FOUND ]
+- Checking /tmp sticky bit [ OK ]
+- Checking /var/tmp sticky bit [ OK ]
+- Mount options of /dev [ PARTIALLY HARDENED ]
+- Mount options of /dev/shm [ PARTIALLY HARDENED ]
+- Mount options of /run [ HARDENED ]
+- Total without nodev:12 noexec:17 nosuid:10 ro or noexec (W^X): 13 of total 38
+- Disable kernel support of some filesystems
+
+[+] USB Devices
+------------------------------------
+- Checking usb-storage driver (modprobe config) [ NOT DISABLED ]
+- Checking USB devices authorization [ ENABLED ]
+- Checking USBGuard [ NOT FOUND ]
+
+[+] Storage
+------------------------------------
+- Checking firewire ohci driver (modprobe config) [ DISABLED ]
+
+[+] NFS
+------------------------------------
+- Check running NFS daemon [ NOT FOUND ]
+
+[+] Name services
+------------------------------------
+- Checking search domains [ FOUND ]
+- Searching DNS domain name [ UNKNOWN ]
+- Checking /etc/hosts
+- Duplicate entries in hosts file [ NONE ]
+- Presence of configured hostname in /etc/hosts [ FOUND ]
+- Hostname mapped to localhost [ NOT FOUND ]
+- Localhost mapping to IP address [ OK ]
+
+[+] Ports and packages
+------------------------------------
+- Searching package managers
+
+  [WARNING]: Test NAME-4408 had a long execution: 10.061553 seconds
+
+- Searching dpkg package manager [ FOUND ]
+- Querying package manager
+- Query unpurged packages [ FOUND ]
+- Checking security repository in sources.list file [ OK ]
+- Checking upgradeable packages [ SKIPPED ]
+- Checking package audit tool [ NONE ]
+
+=================================================================
+
+  Exception found!
+
+  Function/test:  [PKGS-7410]
+  Message:        Could not find any kernel packages via package manager
+
+  Help improving the Lynis community with your feedback!
+
+  Steps:
+  - Ensure you are running the latest version (/usr/sbin/lynis update check)
+  - If so, create a GitHub issue at https://github.com/CISOfy/lynis
+  - Include relevant parts of the log file or configuration file
+
+  Thanks!
+
+=================================================================
+
+- Toolkit for automatic upgrades (unattended-upgrade) [ FOUND ]
+
+[+] Networking
+------------------------------------
+- Checking IPv6 configuration [ ENABLED ]
+Configuration method [ AUTO ]
+IPv6 only [ NO ]
+- Checking configured nameservers
+- Testing nameservers
+Nameserver: 10.255.255.254 [ OK ]
+- Minimal of 2 responsive nameservers [ WARNING ]
+- DNSSEC supported (systemd-resolved) [ UNKNOWN ]
+- Getting listening ports (TCP/UDP) [ DONE ]
+- Checking promiscuous interfaces [ OK ]
+- Checking status DHCP client
+- Checking for ARP monitoring software [ NOT FOUND ]
+- Uncommon network protocols [ 0 ]
+
+[+] Printers and Spools
+------------------------------------
+- Checking cups daemon [ NOT FOUND ]
+- Checking lp daemon [ NOT RUNNING ]
+
+[+] Software: e-mail and messaging
+------------------------------------
+
+[+] Software: firewalls
+------------------------------------
+- Checking iptables support [ FOUND ]
+- Checking host based firewall [ ACTIVE ]
+
+[+] Software: webserver
+------------------------------------
+- Checking Apache [ NOT FOUND ]
+- Checking nginx [ NOT FOUND ]
+
+[+] SSH Support
+------------------------------------
+- Checking running SSH daemon [ NOT FOUND ]
+
+[+] SNMP Support
+------------------------------------
+- Checking running SNMP daemon [ NOT FOUND ]
+
+[+] Databases
+------------------------------------
+No database engines found
+
+[+] LDAP Services
+------------------------------------
+- Checking OpenLDAP instance [ NOT FOUND ]
+
+[+] PHP
+------------------------------------
+
+[+] Squid Support
+------------------------------------
+- Checking running Squid daemon [ NOT FOUND ]
+
+[+] Logging and files
+------------------------------------
+- Checking for a running log daemon [ WARNING ]
+- Checking Syslog-NG status [ NOT FOUND ]
+- Checking systemd journal status [ NOT FOUND ]
+- Checking Metalog status [ NOT FOUND ]
+- Checking RSyslog status [ NOT FOUND ]
+- Checking RFC 3195 daemon status [ NOT FOUND ]
+- Checking klogd [ NOT FOUND ]
+- Checking minilogd instances [ NOT FOUND ]
+- Checking logrotate presence [ OK ]
+- Checking log directories (static list) [ DONE ]
+- Checking open log files [ DONE ]
+- Checking deleted files in use [ DONE ]
+
+[+] Insecure services
+------------------------------------
+- Installed inetd package [ NOT FOUND ]
+- Installed xinetd package [ OK ]
+- xinetd status
+- Installed rsh client package [ OK ]
+- Installed rsh server package [ OK ]
+- Installed telnet client package [ OK ]
+- Installed telnet server package [ NOT FOUND ]
+- Checking NIS client installation [ OK ]
+- Checking NIS server installation [ OK ]
+- Checking TFTP client installation [ OK ]
+- Checking TFTP server installation [ OK ]
+
+[+] Banners and identification
+------------------------------------
+- /etc/issue [ FOUND ]
+- /etc/issue contents [ WEAK ]
+- /etc/issue.net [ FOUND ]
+- /etc/issue.net contents [ WEAK ]
+
+[+] Scheduled tasks
+------------------------------------
+- Checking crontab and cronjob files [ DONE ]
+
+[+] Accounting
+------------------------------------
+- Checking accounting information [ NOT FOUND ]
+- Checking sysstat accounting data [ NOT FOUND ]
+- Checking auditd [ NOT FOUND ]
+
+[+] Time and Synchronization
+------------------------------------
+- Checking for a running NTP daemon or client [ WARNING ]
+
+[+] Cryptography
+------------------------------------
+- Checking for expired SSL certificates [0/148] [ NONE ]
+- Kernel entropy is sufficient [ YES ]
+- HW RNG & rngd [ NO ]
+- SW prng [ NO ]
+- MOR variable not found [ WEAK ]
+
+[+] Virtualization
+------------------------------------
+
+[+] Containers
+------------------------------------
+- Docker status [ ERROR ]
+- Docker info output (warnings) [ NONE ]
+
+[+] Security frameworks
+------------------------------------
+- Checking presence AppArmor [ FOUND ]
+- Checking AppArmor status [ UNKNOWN ]
+- Checking presence SELinux [ NOT FOUND ]
+- Checking presence TOMOYO Linux [ NOT FOUND ]
+- Checking presence grsecurity [ NOT FOUND ]
+- Checking for implemented MAC framework [ NONE ]
+
+[+] Software: file integrity
+------------------------------------
+- Checking file integrity tools
+- Checking presence integrity tool [ NOT FOUND ]
+
+[+] Software: System tooling
+------------------------------------
+- Checking automation tooling
+- Automation tooling [ NOT FOUND ]
+- Checking for IDS/IPS tooling [ NONE ]
+
+[+] Software: Malware
+------------------------------------
+- Malware software components [ NOT FOUND ]
+
+[+] File Permissions
+------------------------------------
+- Starting file permissions check
+File: /etc/crontab [ SUGGESTION ]
+File: /etc/group [ OK ]
+File: /etc/group- [ OK ]
+File: /etc/hosts.allow [ OK ]
+File: /etc/hosts.deny [ OK ]
+File: /etc/issue [ OK ]
+File: /etc/issue.net [ OK ]
+File: /etc/passwd [ OK ]
+File: /etc/passwd- [ OK ]
+File: /etc/ssh/sshd_config [ SUGGESTION ]
+Directory: /etc/cron.d [ SUGGESTION ]
+Directory: /etc/cron.daily [ SUGGESTION ]
+Directory: /etc/cron.hourly [ SUGGESTION ]
+Directory: /etc/cron.weekly [ SUGGESTION ]
+Directory: /etc/cron.monthly [ SUGGESTION ]
+File: /etc/crontab [ SUGGESTION ]
+File: /etc/group [ OK ]
+File: /etc/group- [ OK ]
+File: /etc/hosts.allow [ OK ]
+File: /etc/hosts.deny [ OK ]
+File: /etc/issue [ OK ]
+File: /etc/issue.net [ OK ]
+File: /etc/passwd [ OK ]
+File: /etc/passwd- [ OK ]
+File: /etc/ssh/sshd_config [ SUGGESTION ]
+Directory: /etc/cron.d [ SUGGESTION ]
+Directory: /etc/cron.daily [ SUGGESTION ]
+Directory: /etc/cron.hourly [ SUGGESTION ]
+Directory: /etc/cron.weekly [ SUGGESTION ]
+Directory: /etc/cron.monthly [ SUGGESTION ]
+
+[+] Home directories
+------------------------------------
+- Permissions of home directories [ OK ]
+- Ownership of home directories [ OK ]
+- Checking shell history files [ OK ]
+
+[+] Kernel Hardening
+------------------------------------
+- Comparing sysctl key pairs with scan profile
+- dev.tty.ldisc_autoload (exp: 0) [ OK ]
+- fs.suid_dumpable (exp: 0) [ OK ]
+- kernel.core_uses_pid (exp: 1) [ DIFFERENT ]
+- kernel.ctrl-alt-del (exp: 0) [ DIFFERENT ]
+- kernel.dmesg_restrict (exp: 1) [ DIFFERENT ]
+- kernel.kptr_restrict (exp: 2) [ DIFFERENT ]
+- kernel.modules_disabled (exp: 1) [ DIFFERENT ]
+- kernel.perf_event_paranoid (exp: 3) [ DIFFERENT ]
+- kernel.randomize_va_space (exp: 2) [ OK ]
+- kernel.unprivileged_bpf_disabled (exp: 1) [ DIFFERENT ]
+- net.ipv4.conf.all.accept_redirects (exp: 0) [ DIFFERENT ]
+- net.ipv4.conf.all.accept_source_route (exp: 0) [ OK ]
+- net.ipv4.conf.all.bootp_relay (exp: 0) [ OK ]
+- net.ipv4.conf.all.forwarding (exp: 0) [ OK ]
+- net.ipv4.conf.all.log_martians (exp: 1) [ DIFFERENT ]
+- net.ipv4.conf.all.mc_forwarding (exp: 0) [ OK ]
+- net.ipv4.conf.all.proxy_arp (exp: 0) [ OK ]
+- net.ipv4.conf.all.rp_filter (exp: 1) [ DIFFERENT ]
+- net.ipv4.conf.all.send_redirects (exp: 0) [ DIFFERENT ]
+- net.ipv4.conf.default.accept_redirects (exp: 0) [ DIFFERENT ]
+- net.ipv4.conf.default.accept_source_route (exp: 0) [ DIFFERENT ]
+- net.ipv4.conf.default.log_martians (exp: 1) [ DIFFERENT ]
+- net.ipv4.icmp_echo_ignore_broadcasts (exp: 1) [ OK ]
+- net.ipv4.icmp_ignore_bogus_error_responses (exp: 1) [ OK ]
+- net.ipv4.tcp_syncookies (exp: 1) [ OK ]
+- net.ipv4.tcp_timestamps (exp: 0 1) [ OK ]
+- net.ipv6.conf.all.accept_redirects (exp: 0) [ DIFFERENT ]
+- net.ipv6.conf.all.accept_source_route (exp: 0) [ OK ]
+- net.ipv6.conf.default.accept_redirects (exp: 0) [ DIFFERENT ]
+- net.ipv6.conf.default.accept_source_route (exp: 0) [ OK ]
+
+[+] Hardening
+------------------------------------
+- Installed compiler(s) [ FOUND ]
+- Non-native binary formats [ FOUND ]
+
+[+] Custom tests
+------------------------------------
+- Running custom tests...  [ NONE ]
+
+================================================================================
+
+  -[ Lynis 3.0.7 Results ]-
+
+  Warnings (2):
+  ----------------------------
+  ! Couldn't find 2 responsive nameservers [NETW-2705] 
+      https://cisofy.com/lynis/controls/NETW-2705/
+
+  ! klogd is not running, which could lead to missing kernel messages in log files [LOGG-2138] 
+      https://cisofy.com/lynis/controls/LOGG-2138/
+
+  Suggestions (34):
+  ----------------------------
+  * This release is more than 4 months old. Check the website or GitHub to see if there is an update available. [LYNIS] 
+      https://cisofy.com/lynis/controls/LYNIS/
+
+  * Determine runlevel and services at startup [BOOT-5180] 
+      https://cisofy.com/lynis/controls/BOOT-5180/
+
+  * Consider hardening system services [BOOT-5264] 
+    - Details  : Run '/usr/bin/systemd-analyze security SERVICE' for each service
+      https://cisofy.com/lynis/controls/BOOT-5264/
+
+  * Determine why /vmlinuz or /boot/vmlinuz is missing on this Debian/Ubuntu system. [KRNL-5788] 
+    - Details  : /vmlinuz or /boot/vmlinuz
+      https://cisofy.com/lynis/controls/KRNL-5788/
+
+  * If not required, consider explicit disabling of core dump in /etc/security/limits.conf file [KRNL-5820] 
+      https://cisofy.com/lynis/controls/KRNL-5820/
+
+  * Run pwck manually and correct any errors in the password file [AUTH-9228] 
+      https://cisofy.com/lynis/controls/AUTH-9228/
+
+  * Configure password hashing rounds in /etc/login.defs [AUTH-9230] 
+      https://cisofy.com/lynis/controls/AUTH-9230/
+
+  * Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc [AUTH-9262] 
+      https://cisofy.com/lynis/controls/AUTH-9262/
+
+  * Default umask in /etc/login.defs could be more strict like 027 [AUTH-9328] 
+      https://cisofy.com/lynis/controls/AUTH-9328/
+
+  * Check 152 files in /tmp which are older than 90 days [FILE-6354] 
+      https://cisofy.com/lynis/controls/FILE-6354/
+
+  * Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft [USB-1000] 
+      https://cisofy.com/lynis/controls/USB-1000/
+
+  * Check DNS configuration for the dns domain name [NAME-4028] 
+      https://cisofy.com/lynis/controls/NAME-4028/
+
+  * Purge old/removed packages (9 found) with aptitude purge or dpkg --purge command. This will cleanup old configuration files, cron jobs and startup scripts. [PKGS-7346] 
+      https://cisofy.com/lynis/controls/PKGS-7346/
+
+  * Install debsums utility for the verification of packages with known good database. [PKGS-7370] 
+      https://cisofy.com/lynis/controls/PKGS-7370/
+
+  * Install package apt-show-versions for patch management purposes [PKGS-7394] 
+      https://cisofy.com/lynis/controls/PKGS-7394/
+
+  * Install a package audit tool to determine vulnerable packages [PKGS-7398] 
+      https://cisofy.com/lynis/controls/PKGS-7398/
+
+  * Check your resolv.conf file and fill in a backup nameserver if possible [NETW-2705] 
+      https://cisofy.com/lynis/controls/NETW-2705/
+
+  * Determine if protocol 'dccp' is really needed on this system [NETW-3200] 
+      https://cisofy.com/lynis/controls/NETW-3200/
+
+  * Determine if protocol 'sctp' is really needed on this system [NETW-3200] 
+      https://cisofy.com/lynis/controls/NETW-3200/
+
+  * Determine if protocol 'rds' is really needed on this system [NETW-3200] 
+      https://cisofy.com/lynis/controls/NETW-3200/
+
+  * Determine if protocol 'tipc' is really needed on this system [NETW-3200] 
+      https://cisofy.com/lynis/controls/NETW-3200/
+
+  * Check if any syslog daemon is running and correctly configured. [LOGG-2130] 
+      https://cisofy.com/lynis/controls/LOGG-2130/
+
+  * Add a legal banner to /etc/issue, to warn unauthorized users [BANN-7126] 
+      https://cisofy.com/lynis/controls/BANN-7126/
+
+  * Add legal banner to /etc/issue.net, to warn unauthorized users [BANN-7130] 
+      https://cisofy.com/lynis/controls/BANN-7130/
+
+  * Enable process accounting [ACCT-9622] 
+      https://cisofy.com/lynis/controls/ACCT-9622/
+
+  * Enable sysstat to collect accounting (no results) [ACCT-9626] 
+      https://cisofy.com/lynis/controls/ACCT-9626/
+
+  * Enable auditd to collect audit information [ACCT-9628] 
+      https://cisofy.com/lynis/controls/ACCT-9628/
+
+  * Use NTP daemon or NTP client to prevent time issues. [TIME-3104] 
+      https://cisofy.com/lynis/controls/TIME-3104/
+
+  * Check output of aa-status [MACF-6208] 
+    - Details  : /sys/kernel/security/apparmor/profiles
+    - Solution : Run aa-status
+      https://cisofy.com/lynis/controls/MACF-6208/
+
+  * Install a file integrity tool to monitor changes to critical and sensitive files [FINT-4350] 
+      https://cisofy.com/lynis/controls/FINT-4350/
+
+  * Determine if automation tools are present for system management [TOOL-5002] 
+      https://cisofy.com/lynis/controls/TOOL-5002/
+
+  * Consider restricting file permissions [FILE-7524] 
+    - Details  : See screen output or log file
+    - Solution : Use chmod to change file permissions
+      https://cisofy.com/lynis/controls/FILE-7524/
+
+  * One or more sysctl values differ from the scan profile and could be tweaked [KRNL-6000] 
+    - Solution : Change sysctl value or disable test (skip-test=KRNL-6000:<sysctl-key>)
+      https://cisofy.com/lynis/controls/KRNL-6000/
+
+  * Harden compilers like restricting access to root user only [HRDN-7222] 
+      https://cisofy.com/lynis/controls/HRDN-7222/
+
+  Follow-up:
+  ----------------------------
+  - Show details of a test (lynis show details TEST-ID)
+  - Check the logfile for all details (less /home/marius/lynis.log)
+  - Read security controls texts (https://cisofy.com)
+  - Use --upload to upload data to central system (Lynis Enterprise users)
+
+================================================================================
+
+  Lynis security scan details:
+
+  Hardening index : 59 [###########         ]
+  Tests performed : 216
+  Plugins enabled : Skipped
+
+  Components:
+  - Firewall               [V]
+  - Malware scanner        [X]
+
+  Scan mode:
+  Normal [ ]  Forensics [ ]  Integration [ ]  Pentest [V] (running non-privileged)
+
+  Lynis modules:
+  - Compliance status      [?]
+  - Security audit         [V]
+  - Vulnerability scan     [V]
+
+  Files:
+  - Test and debug information      : /home/marius/lynis.log
+  - Report data                     : /home/marius/lynis-report.dat
+
+================================================================================
+
+  Exceptions found
+  Some exceptional events or information was found!
+
+  What to do:
+  You can help by providing your log file (/home/marius/lynis.log).
+  Go to https://cisofy.com/contact/ and send your file to the e-mail address listed
+
+================================================================================
+
+  Skipped tests due to non-privileged mode
+    BOOT-5108 - Check Syslinux as bootloader
+    BOOT-5109 - Check rEFInd as bootloader
+    BOOT-5116 - Check if system is booted in UEFI mode
+    BOOT-5140 - Check for ELILO boot loader presence
+    AUTH-9216 - Check group and shadow group files
+    AUTH-9229 - Check password hashing methods
+    AUTH-9252 - Check ownership and permissions for sudo configuration files
+    AUTH-9288 - Checking for expired passwords
+    FILE-6368 - Checking ACL support on root file system
+    PKGS-7390 - Check Ubuntu database consistency
+    PKGS-7392 - Check for Debian/Ubuntu security updates
+    FIRE-4508 - Check used policies of iptables chains
+    FIRE-4512 - Check iptables for empty ruleset
+    FIRE-4513 - Check iptables for unused rules
+    FIRE-4540 - Check for empty nftables configuration
+    FIRE-4586 - Check firewall logging
+    CRYP-7930 - Determine if system uses LUKS block device encryption
+
+================================================================================
+
+  Lynis 3.0.7
+
+  Auditing, system hardening, and compliance for UNIX-based systems
+  (Linux, macOS, BSD, and others)
+
+  2007-2021, CISOfy - https://cisofy.com/lynis/
+  Enterprise support available (compliance, plugins, interface and tools)
+
+================================================================================
+
+  [TIP]: Enhance Lynis audits by adding your settings to custom.prf (see /etc/lynis/default.prf for all settings)
+

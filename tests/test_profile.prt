@@ -1,0 +1,3 @@
+# Test profile for Lynis
+some-other-setting=value
+skip-test=TEST-003
