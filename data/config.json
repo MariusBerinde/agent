@@ -3,6 +3,7 @@
 	"ip": "127.0.0.1",
 	"name": "wsl",
 	"descr":"lol",
+	"url":"http://localhost:8083/addAgent",
 	"lynis_profile": "./data/deb.prt ",
 	"services":["mongodb","haproxy","glusterfs "],
 	"rules":[

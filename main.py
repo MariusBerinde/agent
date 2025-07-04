@@ -36,7 +36,7 @@ def read_json():
     return local_data
 
 def get_local_info():
-    command_ip = 'hostname -I'
+    command_ip = 'hostname -I | awk \'{print $1}\''
     try:
         ip = subprocess.run(
             command_ip,
@@ -578,9 +578,14 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 response = {"status": "success", "message": "utente non riconosciuto operazione non permessa"}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             else:
+
+
                 json_data=read_json()
                 local_servies = json_data["services"] 
+
                 status_services = check_active_service(local_servies)
+
+#                status_services =  [{"mongodb": False}, {"haproxy": False}, {"glusterfs ": False}]
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -590,7 +595,7 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 response = {
                     "status": "success", 
                     "message": "Report info retrieved successfully",
-                    "report_info": status_services 
+                    "status_services": status_services 
                 }
                 self.wfile.write(json.dumps(response).encode('utf-8'))
                 return
@@ -776,8 +781,11 @@ def test_set_new_lynis_rules(path_config_lynis):
     replace_rules(path_config_lynis,["ACCT-2754","ACCT-2760"])
 
 
-def test_make_request(ip,port,name,descr,url):
-
+def connect_to_server(ip,port,name,descr,url):
+    """
+    Make a Post request for start the handshake with java server 
+    """
+    print("connect_to_server")
     # Data to be sent
     data = {
         "ip": ip,
@@ -791,6 +799,22 @@ def test_make_request(ip,port,name,descr,url):
 
     # Print the response
     print(response.json())
+def    test_http_request():
+    # The API endpoint
+    url = "https://jsonplaceholder.typicode.com/posts"
+
+    # Data to be sent
+    data = {
+        "userID": 1,
+        "title": "Making a POST request",
+        "body": "This is the data we created."
+    }
+
+    # A POST request to the API
+    response = requests.post(url, json=data)
+
+    # Print the response
+    print(response.json())
 
 def check_active_service(services):
     """
@@ -799,7 +823,7 @@ def check_active_service(services):
     status = []
     #todo parall if len > 10
     for s in services:
-        status.append({"nome servizio": s, "status": is_service_active(s)})
+        status.append({ s : is_service_active(s)})
     return status
 def test_check_serv():
     services=["cron", "dmesg", "ssh"]
@@ -833,7 +857,8 @@ if __name__ == "__main__":
     #test_load_rules()
     #test_get_local_info()
 
-   # test_make_request(host,port,name,descr,url)
+    #test_http_request()
+    connect_to_server(host,port,name,descr,url)
 
 
 
@@ -850,4 +875,3 @@ if __name__ == "__main__":
         print(f"Errore nell'avvio del server: {e}")
         logger.error(f"server locale fermato con errore {e}")
         sys.exit(1)
-
