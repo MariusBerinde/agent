@@ -38,17 +38,19 @@ class Rule:
         """
         Lancia command sul sistema e verifica se contiene il risultato di expected_result
         """ 
-        result = subprocess.run(
-            self.command,
-            shell=True,  
-            capture_output=True,  
-            text=True  
-        )
-        print(f"prova subprocess valore stdout {result.stdout}\t stderr {result.stderr} ")
-        self.status = result.stdout == self.expected_result 
-        return self.status
-
-
+        try:
+            result = subprocess.run(
+                self.command,
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+            print(f"prova subprocess valore stdout {result.stdout}\t stderr {result.stderr} ")
+            self.status = result.stdout == self.expected_result
+            return self.status
+        except subprocess.CalledProcessError as e:
+            print(f"Test regola fallito.")
+        return False
 class SystemRules:
     """
     Classe che rappresenta le regole di sicurezza che vogliamo testare sulla nostra configurazione
@@ -76,8 +78,8 @@ def test_rule():
 
     regola_shadow = Rule(
         name="Regola shadow",
-        command='''awk -F: '($2 == "" ) { print $1 " does not have a password "}' /etc/shadow''',
-        expected_result = "")
+        command='''systemctl is-enabled glusterd''',
+        expected_result = "enabled")
     ris_regola = regola_shadow.check()
     print("Dettagli regola con  implementato metodo di stampa oggetto",regola_shadow)
     print("risultato check",ris_regola)
@@ -100,6 +102,6 @@ def test_system():
     #sys.checkAll()
 if __name__ == "__main__":
 
-    #test_rule()
-    test_system()
+    test_rule()
+    #test_system()
 

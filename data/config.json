@@ -1,6 +1,6 @@
 {
 	"port": 5000,
-	"ip": "127.0.0.1",
+	"ip": "172.22.59.12",
 	"name": "wsl",
 	"descr":"lol",
 	"url":"http://localhost:8083/addAgent",

@@ -349,7 +349,8 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
                 json_rules = []
                 ip = self.get_client_ip()
                 for rule in actual_rules.rules :
-                    json_rules.append(json.dumps(rule.to_dict(ip)))
+                    json_rules.append(rule.to_dict(ip))
+                    print(f"get Rules regola {rule.to_dict(ip)}")
                 response = {"status": "success", "message": json_rules}
                 self.wfile.write(json.dumps(response).encode('utf-8'))
             return
@@ -580,12 +581,14 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
             else:
 
 
+                '''
                 json_data=read_json()
                 local_servies = json_data["services"] 
 
                 status_services = check_active_service(local_servies)
+                '''
 
-#                status_services =  [{"mongodb": False}, {"haproxy": False}, {"glusterfs ": False}]
+                status_services =  [{"mongodb": False}, {"haproxy": False}, {"glusterfs ": False}]
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
