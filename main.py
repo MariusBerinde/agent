@@ -582,13 +582,14 @@ class AgentRequest (http.server.BaseHTTPRequestHandler):
 
 
                 '''
+
                 json_data=read_json()
                 local_servies = json_data["services"] 
 
-                status_services = check_active_service(local_servies)
-                '''
+                status_services = check_active_service2(local_servies)
 
-                status_services =  [{"mongodb": False}, {"haproxy": False}, {"glusterfs ": False}]
+                '''
+                status_services =  [{"name": "mongodb", "status": False, "automaticStart": False}, {"name": "haproxy", "status": False, "automaticStart": True}, {"name": "glusterfs ", "status": True, "automaticStart": True}]
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
@@ -828,7 +829,45 @@ def check_active_service(services):
     for s in services:
         status.append({ s : is_service_active(s)})
     return status
+
+def check_active_service2(services):
+    '''
+    version of check status that add is star up
+    '''
+    status = []
+    for s in services:
+        #status.append({ s : is_service_active(s)})
+        status.append({ 'name' : s,"status": is_service_active(s),"automaticStart":is_service_automatic_start(s)})
+    return status
+
+def is_service_automatic_start(service_name):
+    try:
+        # Usa systemctl per verificare lo stato del servizio
+        # L'opzione --quiet sopprime l'output
+        # is-active restituisce 0 se il servizio è attivo, non-zero altrimenti
+        result = subprocess.run(
+            ['systemctl', 'is-enabled', '--quiet', service_name],
+            capture_output=True,
+            timeout=10
+        )
+        
+        # Se il codice di ritorno è 0, il servizio è attivo
+        return result.returncode == 0         
+    except subprocess.TimeoutExpired:
+        # Timeout - considera il servizio non attivo
+        return False
+    except FileNotFoundError as f:
+        # systemctl non trovato - prova con il metodo alternativo
+        logger.error("is_service_automatic_start : systemctl non trovato")
+        return False
+        return _check_service_alternative(service_name)
+    except Exception as e:
+        # Qualsiasi altro errore
+        logger.error(f" lanciata eccezzione durante l'esecuzione della funzione is_service_active:{e}")
+        return False
+
 def test_check_serv():
+    print("on test check server")
     services=["cron", "dmesg", "ssh"]
     ris = check_active_service(services)
     print("test_check_serv ")
@@ -849,6 +888,7 @@ if __name__ == "__main__":
     print(f"config attuale {port},host{host}")
 
 
+    #test_check_serv()
     ''' 
     print(f"lettura servizi da controllare: {servizi}")
     for e in servizi:
